@@ -9,6 +9,7 @@ let invert () =
     |> liftSeed false
     |> Block
 
-Eval.toSeq (invert())
+// val it : bool list = [true; false; true; false; true; false; true; false; true; false]
+Eval.Generator.toReaderSeqWithStateAndValues (fun _ -> ()) (invert())
 |> Seq.take 10
-
+|> Seq.toList

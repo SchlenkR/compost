@@ -164,18 +164,6 @@ module Feedback =
 
 
 [<AutoOpen>]
-module AudioEnvironment =
-
-    type Env =
-        { samplePos: int
-          sampleRate: int }
-
-    let toSeconds env = env.samplePos / env.sampleRate
-
-    let block = BlockBuilderGen<Env>()
-
-
-[<AutoOpen>]
 module Eval =
     
     let getValues (s: Res<_, _> seq) = s |> Seq.map (fun x -> x.value)
@@ -199,27 +187,46 @@ module Eval =
         let toReaderSeqWithValues getReaderState (blockWithInput: 'inp -> Block<_, _, _>) =
             fun inputValues ->
                 toReaderSeqWithStateAndValues getReaderState blockWithInput inputValues
-                |> Seq.map (fun x -> x.value)
+                |> getValues
 
     
     module Generator =
 
         /// Converts a block into a sequence with the given state.
         /// The getReaderState function is called for each evaluation.
-        let toReaderSeq getReaderState (b: Block<_, _, _>) =
-            let mutable lastState: 'a option = None
-            Seq.initInfinite (fun i ->
-                let res = (runB b) lastState (getReaderState i)
-                lastState <- Some res.state
-                res)
+        let toReaderSeqWithStateAndValues getReaderState (blockWithInput: Block<_, _, _>) =
+            Effect.toReaderSeqWithStateAndValues
+                getReaderState
+                (fun () -> blockWithInput)
+                (Seq.initInfinite (fun _ -> ()))
+            |> getValues
 
+        /// Converts a block into a sequence with the given state.
+        /// The getReaderState function is called for each evaluation.
+        let toReaderSeqWithValues getReaderState (blockWithInput: Block<_, _, _>) =
+            toReaderSeqWithStateAndValues getReaderState blockWithInput
+            |> getValues
+       
+
+[<AutoOpen>]
+module AudioEnvironment =
+
+    type Env =
+        { samplePos: int
+          sampleRate: int }
+
+    let toSeconds env = env.samplePos / env.sampleRate
+
+    let block = BlockBuilderGen<Env>()
+
+    module Eval =
+        
         /// Converts a block and a given sample rate to a sequence.
         let toAudioSeq (b: Block<_, _, Env>) sampleRate =
             b
-            |> toReaderSeq (fun i ->
+            |> Eval.Generator.toReaderSeqWithStateAndValues (fun i ->
                 { samplePos = i
                   sampleRate = sampleRate })
 
         /// Converts a block with a sample rate of 44.1kHz to a sequence.
         let toAudioSeq44k (b: Block<_, _, _>) = toAudioSeq b 44100
-        
