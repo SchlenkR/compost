@@ -35,11 +35,11 @@ let amSynth =
 
 //(let (Synth s) = amSynth in s 2000.0 |> playSync 2.5<s>)
 
-let gatedSynth = makePlayable (Envelope.ar 0.3 0.1 |> Envelope) amSynth |> Voice
+let gatedSynth = (makePlayable (Envelope.ar 0.001 0.005 |> Envelope) amSynth) |> Voice
 
 let final =
-//    sequencer gatedSynth 120.0 8.0 [ C4; D4; E4; P; P; A4; B4; C5 ]
-    sequencer gatedSynth 120.0 8.0 [ C4; P; P; P; P; P; ]
+//    sequencer gatedSynth 120.0 8.0 [ C4; D4; E4; Rel; Rel; A4; B4; C5 ]
+    sequencer gatedSynth 120.0 8.0 [ C4; C4; Rel; Rel; Rel; A5; Sus; Sus; Sus; A5 ]
     |> playSync 5.0<s>
 
 
