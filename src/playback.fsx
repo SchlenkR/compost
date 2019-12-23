@@ -1,6 +1,6 @@
 ﻿
 #load "blocks.fsx"
-open Compost
+open Core
 
 #r "../packages/CSCore/lib/net35-client/cscore.dll"
 
@@ -34,12 +34,12 @@ type private StereoSampleSource<'a>(sequenceFactory: int -> float seq) =
                 ()
             count
 
-let playSync (duration: float<s>) (l: Block<float, 'a, Env>) =
+let playSync (duration: float<s>) (block: Block<float, _, Env>) =
     let latencyInMs = 1000
     // TODO: Usage of newer backend better?
     use waveOut = new DirectSoundOut(latencyInMs, ThreadPriority.AboveNormal)
 
-    let loopingSequence = Eval.toAudioSeq l
+    let loopingSequence = Eval.toAudioSeq block
     let sampleSource = new StereoSampleSource<_>(loopingSequence)
 
     waveOut.Initialize(new SampleToIeeeFloat32(sampleSource))

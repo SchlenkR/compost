@@ -1,6 +1,6 @@
-﻿#load "compost.fsx"
+﻿#load "core.fsx"
 
-open Compost
+open Core
 
 open System
 

@@ -1,6 +1,6 @@
 ﻿
-#load "../compost.fsx"
-open Compost
+#load "../core.fsx"
+open Core
 
 // a simple block that toggles ongoing from true to false with each evaluation
 let invert =
