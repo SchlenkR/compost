@@ -61,28 +61,41 @@ type Voice<'s> = Voice of (float option -> Block<float, 's, Env>)
 
 let gatedSynth = makePlayable (Envelope.ar 1.0 1.0 |> Envelope) amSynth |> Voice
 
-let pattern (Voice voice) =
+type Step =
+    | Key of float
+    | Nothing
+    | Silence
+
+let sequencer (Voice voice) (bpm: float) (pattern: Step list) =
+    let bps = bpm / 60.0
+    
+    let patternQuant = 4.0
+
     let initialFrq = 1000.0
-    let initials = (0.0, 1000.0, voice (Some initialFrq))
+    let initials = (0, 1000.0, voice (Some initialFrq))
+    
     initials ++> fun s (r: Env) ->
         block {
-            let lastPos, lastFrq, lastVoice = s
-            let currentPos = toSeconds r
+            let lastQuantIndex, lastFrq, lastVoice = s
+            let currentSecs = toSeconds r
+            let currentQuantIndex = (Math.Floor(bps * currentSecs * patternQuant) |> int)
 
-            let newPos, newFrq, newVoice =
-                if currentPos - lastPos > 0.2 then
+            let newQuantIndex, newFrq, newVoice =
+                if currentQuantIndex <> lastQuantIndex then
                     let frq = lastFrq + 100.0
                     let voice = voice (Some frq)
-                    (currentPos, frq, voice)
+                    (currentQuantIndex, frq, voice)
                 else
-                    (lastPos, lastFrq, lastVoice)
+                    (lastQuantIndex, lastFrq, lastVoice)
+                    
             let! synthValue = newVoice
             return { out = synthValue
-                     feedback = newPos, newFrq, newVoice }
+                     feedback = newQuantIndex, newFrq, newVoice }
         }
 
 let final =
-    pattern gatedSynth |> playSync 5.0<s>
+    sequencer gatedSynth 60.0 [ Key 1000.0; Key 2000.0; Key 3000.0 ]
+    |> playSync 5.0<s>
 
 
 //Eval.Test.evalN44k (Envelope.follow 1.0 1.0) 44100 |> List.iteri (fun i x -> printfn "%d - %f" i x)
