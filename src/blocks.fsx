@@ -82,28 +82,32 @@ module Base =
 module Envelope =
 
     // An Envelope follower (tc: [0.0 .. 1.0])
-    let follow tc (input: float) =
+    let follow tc retrigger (input: float) =
 
+        let seed = 0.0
+        
         // k depende on sample rate; but we ignore that for the moment and assume 44.1kHz
         let k = 0.00005
         let tc' = -(1.0 - k) * tc + 1.0
 
-        fun s r ->
-            let diff = s - input
-            let out = s - diff * tc'
+        fun s _ ->
+            let v' = s
+//                if retrigger then seed else s
+            
+            let diff = v' - input
+            let out = v' - diff * tc'
 
             { value = out
               state = out }
-
-        |> liftSeed 0.0
+        |> liftSeed seed
         |> Block
 
     /// An Attack-Release envelope (a, r: [0.0 .. 1.0])
-    let ar a r inp =
+    let ar a r trigger retrigger =
         let target, tc =
-            if inp then 1.0, a
+            if trigger then 1.0, a
             else 0.0, r
-        follow tc target
+        follow tc retrigger target
 
 
 module Filter =

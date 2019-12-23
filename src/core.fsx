@@ -243,3 +243,173 @@ module Audio =
             let evalN44k block =
                 toAudioSeq44k block
                 |> listN
+
+
+[<AutoOpen>]
+module Compose =
+        
+    type Step =
+        | Note of float
+        | P
+
+    type Synth<'s> = Synth of (float -> Block<float, 's, Env>)
+
+    type Envelope<'s> = Envelope of (bool -> bool -> Block<float, 's, Env>)
+
+    type Voice<'s> = Voice of (float option -> Block<float, 's, Env>)
+
+    let inline makePlayable (Envelope envelope) (Synth synth) trigger =
+        let initialFrq = 0.0
+        initialFrq +-> fun lastFrq ->
+            block {
+                let frq, isTriggered =
+                    match trigger with
+                    | None -> lastFrq, false
+                    | Some frq -> frq, true
+                let! s = synth frq
+                let! e = envelope isTriggered (lastFrq <> frq)
+                return { out = s * e
+                         feedback = frq }
+            }
+        
+    let sequencer (Voice voice) (bpm: float) beats (pattern: Step list) =
+        
+        let index l i =
+            let length = l |> List.length
+            let i' = i - (i / length * length)
+            l.[i']
+
+        let bps = bpm / 60.0
+        
+        let patternQuant = beats / 4.0
+
+        let initials = (-1, 1000.0)
+        
+        initials ++> fun s (r: Env) ->
+            block {
+                let lastQuantIndex, lastFrq = s
+                let currentSecs = toSeconds r
+                let currentQuantIndex = (Math.Floor(bps * currentSecs * patternQuant) |> int)
+
+                let newQuantIndex,newFrq,trigger =
+                    if currentQuantIndex <> lastQuantIndex then
+                        let step = index pattern currentQuantIndex
+                        match step with
+                        | Note frq ->
+                            (currentQuantIndex, frq, Some frq)
+                        | P -> (lastQuantIndex, lastFrq, None)
+                    else
+                        (lastQuantIndex, lastFrq, None)
+                        
+                let! synthValue = voice trigger
+                return { out = synthValue
+                         feedback = newQuantIndex, newFrq }
+            }
+
+
+[<AutoOpen>]
+module Notes =
+    
+    let C0 = Note 16.351597831287414
+    let Cs0 = Note 17.323914436054505
+    let D0 = Note 18.354047994837977
+    let Ds0 = Note 19.445436482630058
+    let E0 = Note 20.601722307054366
+    let F0 = Note 21.826764464562746
+    let Fs0 = Note 23.12465141947715
+    let G0 = Note 24.499714748859326
+    let Gs0 = Note 25.956543598746574
+    let A0 = Note 27.5
+    let As0 = Note 29.13523509488062
+    let B0 = Note 30.86770632850775
+    
+    let C1 = Note 32.70319566257483
+    let Cs1 = Note 34.64782887210901
+    let D1 = Note 36.70809598967594
+    let Ds1 = Note 38.890872965260115
+    let E1 = Note 41.20344461410875
+    let F1 = Note 43.653528929125486
+    let Fs1 = Note 46.2493028389543
+    let G1 = Note 48.999429497718666
+    let Gs1 = Note 51.91308719749314
+    let A1 = Note 55.0
+    let As1 = Note 58.27047018976124
+    let B1 = Note 61.7354126570155
+    
+    let C2 = Note 65.40639132514966
+    let Cs2 = Note 69.29565774421802
+    let D2 = Note 73.41619197935188
+    let Ds2 = Note 77.78174593052023
+    let E2 = Note 82.4068892282175
+    let F2 = Note 87.30705785825097
+    let Fs2 = Note 92.4986056779086
+    let G2 = Note 97.99885899543733
+    let Gs2 = Note 103.82617439498628
+    let A2 = Note 110.0
+    let As2 = Note 116.54094037952248
+    let B2 = Note 123.47082531403103
+    
+    let C3 = Note 130.8127826502993
+    let Cs3 = Note 138.59131548843604
+    let D3 = Note 146.8323839587038
+    let Ds3 = Note 155.56349186104046
+    let E3 = Note 164.81377845643496
+    let F3 = Note 174.61411571650194
+    let Fs3 = Note 184.9972113558172
+    let G3 = Note 195.99771799087463
+    let Gs3 = Note 207.65234878997256
+    let A3 = Note 220.0
+    let As3 = Note 233.08188075904496
+    let B3 = Note 246.94165062806206
+    
+    let C4 = Note 261.6255653005986
+    let Cs4 = Note 277.1826309768721
+    let D4 = Note 293.6647679174076
+    let Ds4 = Note 311.1269837220809
+    let E4 = Note 329.6275569128699
+    let F4 = Note 349.2282314330039
+    let Fs4 = Note 369.9944227116344
+    let G4 = Note 391.99543598174927
+    let Gs4 = Note 415.3046975799451
+    let A4 = Note 440.0
+    let As4 = Note 466.1637615180899
+    let B4 = Note 493.8833012561241
+    
+    let C5 = Note 523.2511306011972
+    let Cs5 = Note 554.3652619537442
+    let D5 = Note 587.3295358348151
+    let Ds5 = Note 622.2539674441618
+    let E5 = Note 659.2551138257398
+    let F5 = Note 698.4564628660078
+    let Fs5 = Note 739.9888454232688
+    let G5 = Note 783.9908719634985
+    let Gs5 = Note 830.6093951598903
+    let A5 = Note 880.0
+    let As5 = Note 932.3275230361799
+    let B5 = Note 987.7666025122483
+    
+    let C6 = Note 1046.5022612023945
+    let Cs6 = Note 1108.7305239074883
+    let D6 = Note 1174.6590716696303
+    let Ds6 = Note 1244.5079348883237
+    let E6 = Note 1318.5102276514797
+    let F6 = Note 1396.9129257320155
+    let Fs6 = Note 1479.9776908465376
+    let G6 = Note 1567.981743926997
+    let Gs6 = Note 1661.2187903197805
+    let A6 = Note 1760.0
+    let As6 = Note 1864.6550460723597
+    let B6 = Note 1975.533205024496
+    
+    let C7 = Note 2093.004522404789
+    let Cs7 = Note 2217.4610478149766
+    let D7 = Note 2349.31814333926
+    let Ds7 = Note 2489.0158697766474
+    let E7 = Note 2637.02045530296
+    let F7 = Note 2793.825851464031
+    let Fs7 = Note 2959.955381693075
+    let G7 = Note 3135.9634878539946
+    let Gs7 = Note 3322.437580639561
+    let A7 = Note 3520.0
+    let As7 = Note 3729.3100921447194
+    let B7 = Note 3951.066410048992    
