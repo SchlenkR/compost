@@ -65,8 +65,14 @@ type Step =
     | Key of float
     | Nothing
     | Silence
-
+    
 let sequencer (Voice voice) (bpm: float) (pattern: Step list) =
+    
+    let index l i =
+        let length = l |> List.length
+        let i' = i - (i / length * length)
+        l.[i']
+
     let bps = bpm / 60.0
     
     let patternQuant = 4.0
@@ -82,9 +88,12 @@ let sequencer (Voice voice) (bpm: float) (pattern: Step list) =
 
             let newQuantIndex, newFrq, newVoice =
                 if currentQuantIndex <> lastQuantIndex then
-                    let frq = lastFrq + 100.0
-                    let voice = voice (Some frq)
-                    (currentQuantIndex, frq, voice)
+                    let step = index pattern currentQuantIndex
+                    match step with
+                    | Key frq -> 
+                        let voice = voice (Some frq)
+                        (currentQuantIndex, frq, voice)
+                    | _ -> (lastQuantIndex, lastFrq, lastVoice)
                 else
                     (lastQuantIndex, lastFrq, lastVoice)
                     
