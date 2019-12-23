@@ -11,4 +11,4 @@ let invert =
     |> Block
 
 // val it : bool list = [true; false; true; false; true; false; true; false; true; false]
-Eval.Test.evalN invert 10
+Compost.Eval.Test.evalN invert 10

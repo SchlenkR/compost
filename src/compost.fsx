@@ -1,5 +1,4 @@
-﻿
-open System
+﻿open System
 
 module Const =
     let pi = Math.PI
@@ -134,6 +133,11 @@ module Helper =
                 | None -> seed
             block x r
 
+    let listN x n =
+        x
+        |> Seq.take n
+        |> Seq.toList
+
 
 [<AutoOpen>]
 module Feedback =
@@ -165,11 +169,11 @@ module Feedback =
 
 [<AutoOpen>]
 module Eval =
-    
+
     let getValues (s: Res<_, _> seq) = s |> Seq.map (fun x -> x.value)
-    
+
     let noReader = fun _ -> ()
-    
+
     module Effect =
 
         /// Converts a block into a sequence with the given state.
@@ -183,51 +187,43 @@ module Eval =
                     let res = block lastState (getReaderState i)
                     lastState <- Some res.state
                     res)
-                
+
         /// Converts a block into a sequence with the given state.
         /// The getReaderState function is called for each evaluation.
         let toSeqV getReaderState (blockWithInput: 'inp -> Block<_, _, _>) =
-            fun inputValues ->
-                toSeqSV getReaderState blockWithInput inputValues
-                |> getValues
+            fun inputValues -> toSeqSV getReaderState blockWithInput inputValues |> getValues
 
     module Generator =
 
         /// Converts a block into a sequence with the given state.
         /// The getReaderState function is called for each evaluation.
         let toSeqSV getReaderState (blockWithInput: Block<_, _, _>) =
-            Effect.toSeqSV
-                getReaderState
-                (fun () -> blockWithInput)
-                (Seq.initInfinite (fun _ -> ()))
-            |> getValues
+            Effect.toSeqSV getReaderState (fun () -> blockWithInput) (Seq.initInfinite (fun _ -> ())) |> getValues
 
         /// Converts a block into a sequence with the given state.
         /// The getReaderState function is called for each evaluation.
         let toSeqV getReaderState (blockWithInput: Block<_, _, _>) =
-            toSeqSV getReaderState blockWithInput
-            |> getValues
-    
+            toSeqSV getReaderState blockWithInput |> getValues
+
     module Test =
-        let evalN block n =
+        let evalN block =
             Generator.toSeqSV noReader block
-            |> Seq.take n
-            |> Seq.toList
+            |> listN
 
 
 [<AutoOpen>]
-module AudioEnvironment =
+module Audio =
 
     type Env =
         { samplePos: int
           sampleRate: int }
 
-    let toSeconds env = env.samplePos / env.sampleRate
+    let toSeconds env = (double env.samplePos) / (double env.sampleRate)
 
     let block = BlockBuilderGen<Env>()
 
     module Eval =
-        
+
         /// Converts a block and a given sample rate to a sequence.
         let toAudioSeq (b: Block<_, _, Env>) sampleRate =
             b
@@ -237,3 +233,13 @@ module AudioEnvironment =
 
         /// Converts a block with a sample rate of 44.1kHz to a sequence.
         let toAudioSeq44k (b: Block<_, _, _>) = toAudioSeq b 44100
+
+        module Test =
+
+            let evalN sr block =
+                toAudioSeq block sr
+                |> listN
+
+            let evalN44k block =
+                toAudioSeq44k block
+                |> listN

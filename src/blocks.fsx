@@ -1,5 +1,5 @@
-﻿
-#load "compost.fsx"
+﻿#load "compost.fsx"
+
 open Compost
 
 open System
@@ -77,6 +77,33 @@ module Base =
 //         | true -> {value=0.0; state=false}
 //         | false -> {value=1.0; state=true}
 //     f |> liftSeed seed |> L
+
+
+module Envelope =
+
+    // An Envelope follower (tc: [0.0 .. 1.0])
+    let follow tc (input: float) =
+
+        // k depende on sample rate; but we ignore that for the moment and assume 44.1kHz
+        let k = 0.00005
+        let tc' = -(1.0 - k) * tc + 1.0
+
+        fun s r ->
+            let diff = s - input
+            let out = s - diff * tc'
+
+            { value = out
+              state = out }
+
+        |> liftSeed 0.0
+        |> Block
+
+    /// An Attack-Release envelope (a, r: [0.0 .. 1.0])
+    let ar a r inp =
+        let target, tc =
+            if inp then 1.0, a
+            else 0.0, r
+        follow tc target
 
 
 module Filter =
@@ -342,7 +369,7 @@ module Osc =
             let newAngle = (angle + Const.pi2 * frq / (float env.sampleRate)) % Const.pi2
             { value = f newAngle
               state = newAngle }
-        
+
         f
         |> liftSeed 0.0
         |> Block
