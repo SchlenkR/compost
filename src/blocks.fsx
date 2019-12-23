@@ -1,8 +1,14 @@
 ﻿#load "core.fsx"
-
 open Core
 
 open System
+
+
+module Const =
+    let pi = Math.PI
+    let pi2 = 2.0 * pi
+    let sqrt2 = 1.4142135623730951
+
 
 module Base =
 
@@ -18,7 +24,7 @@ module Base =
     // let delayBy seed samples =
     //     fun p _ =
 
-    let flp seed input =
+    let slopeP seed input =
         let f s _ =
             let res =
                 match s, input with
@@ -31,7 +37,7 @@ module Base =
         |> liftSeed seed
         |> Block
 
-    let fln seed input =
+    let slopeN seed input =
         let f s _ =
             let res =
                 match s, input with

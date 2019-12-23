@@ -33,9 +33,20 @@ let amSynth =
         }
     |> Synth
 
+let amSynth2 =
+    fun frq ->
+        block {
+            let amount = 0.5
+            let! modulator = 1.0 - (Osc.sin (frq * 1.5)) * amount
+            let! v = (Osc.sin frq) * 0.5 * modulator
+            let! lp = Filter.lowPass v { q = 1.0; frq = 4000.0; gain = 1.0 }
+            return lp
+        }
+    |> Synth
+
 //(let (Synth s) = amSynth in s 2000.0 |> playSync 2.5<s>)
 
-let gatedSynth = (makePlayable (Envelope.ar 0.001 0.005 |> Envelope) amSynth) |> Voice
+let gatedSynth = (makePlayable (Envelope.ar 0.001 0.0002 |> Envelope) amSynth2) |> Voice
 
 let final =
 //    sequencer gatedSynth 120.0 8.0 [ C4; D4; E4; Rel; Rel; A4; B4; C5 ]
