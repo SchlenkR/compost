@@ -1,8 +1,9 @@
 ﻿
-#load "compost.fsx"
+#load "../compost.fsx"
 open Compost
 
-let invert () =
+// a simple block that toggles ongoing from true to false with each evaluation
+let invert =
     fun s r ->
         let v = not s
         { value = v; state = v }
@@ -10,6 +11,4 @@ let invert () =
     |> Block
 
 // val it : bool list = [true; false; true; false; true; false; true; false; true; false]
-Eval.Generator.toReaderSeqWithStateAndValues (fun _ -> ()) (invert())
-|> Seq.take 10
-|> Seq.toList
+Eval.Test.evalN invert 10

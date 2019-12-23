@@ -168,11 +168,13 @@ module Eval =
     
     let getValues (s: Res<_, _> seq) = s |> Seq.map (fun x -> x.value)
     
+    let noReader = fun _ -> ()
+    
     module Effect =
 
         /// Converts a block into a sequence with the given state.
         /// The getReaderState function is called for each evaluation.
-        let toReaderSeqWithStateAndValues getReaderState (blockWithInput: 'inp -> Block<_, _, _>) =
+        let toSeqSV getReaderState (blockWithInput: 'inp -> Block<_, _, _>) =
             let mutable lastState: 'a option = None
             fun inputValues ->
                 inputValues
@@ -184,18 +186,17 @@ module Eval =
                 
         /// Converts a block into a sequence with the given state.
         /// The getReaderState function is called for each evaluation.
-        let toReaderSeqWithValues getReaderState (blockWithInput: 'inp -> Block<_, _, _>) =
+        let toSeqV getReaderState (blockWithInput: 'inp -> Block<_, _, _>) =
             fun inputValues ->
-                toReaderSeqWithStateAndValues getReaderState blockWithInput inputValues
+                toSeqSV getReaderState blockWithInput inputValues
                 |> getValues
 
-    
     module Generator =
 
         /// Converts a block into a sequence with the given state.
         /// The getReaderState function is called for each evaluation.
-        let toReaderSeqWithStateAndValues getReaderState (blockWithInput: Block<_, _, _>) =
-            Effect.toReaderSeqWithStateAndValues
+        let toSeqSV getReaderState (blockWithInput: Block<_, _, _>) =
+            Effect.toSeqSV
                 getReaderState
                 (fun () -> blockWithInput)
                 (Seq.initInfinite (fun _ -> ()))
@@ -203,10 +204,16 @@ module Eval =
 
         /// Converts a block into a sequence with the given state.
         /// The getReaderState function is called for each evaluation.
-        let toReaderSeqWithValues getReaderState (blockWithInput: Block<_, _, _>) =
-            toReaderSeqWithStateAndValues getReaderState blockWithInput
+        let toSeqV getReaderState (blockWithInput: Block<_, _, _>) =
+            toSeqSV getReaderState blockWithInput
             |> getValues
-       
+    
+    module Test =
+        let evalN block n =
+            Generator.toSeqSV noReader block
+            |> Seq.take n
+            |> Seq.toList
+
 
 [<AutoOpen>]
 module AudioEnvironment =
@@ -224,7 +231,7 @@ module AudioEnvironment =
         /// Converts a block and a given sample rate to a sequence.
         let toAudioSeq (b: Block<_, _, Env>) sampleRate =
             b
-            |> Eval.Generator.toReaderSeqWithStateAndValues (fun i ->
+            |> Eval.Generator.toSeqSV (fun i ->
                 { samplePos = i
                   sampleRate = sampleRate })
 

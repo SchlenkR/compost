@@ -1,7 +1,6 @@
-﻿#load "blocks.fsx"
-
+﻿
+#load "blocks.fsx"
 open Compost
-open Blocks
 
 #r "../packages/CSCore/lib/net35-client/cscore.dll"
 
@@ -21,7 +20,7 @@ type private StereoSampleSource<'a>(sequenceFactory: int -> float seq) =
         member val CanSeek = false
         member val Length = 0L
         member val Position = 0L with get, set
-        member val WaveFormat: WaveFormat = new WaveFormat(sampleRate, 32, channels, AudioEncoding.IeeeFloat)
+        member val WaveFormat: WaveFormat = WaveFormat(sampleRate, 32, channels, AudioEncoding.IeeeFloat)
 
         member __.Dispose() = ()
 
@@ -40,7 +39,7 @@ let playSync (duration: float<s>) (l: Block<float, 'a, Env>) =
     // TODO: Usage of newer backend better?
     use waveOut = new DirectSoundOut(latencyInMs, ThreadPriority.AboveNormal)
 
-    let loopingSequence = Eval.toSeqSample l
+    let loopingSequence = Eval.toAudioSeq l
     let sampleSource = new StereoSampleSource<_>(loopingSequence)
 
     waveOut.Initialize(new SampleToIeeeFloat32(sampleSource))
