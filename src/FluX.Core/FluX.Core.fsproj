@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Compile Include="Math.fs" />
+      <Compile Include="Core.fs" />
+      <Compile Include="Audio.fs" />
+      <Compile Include="Analysis.fs" />
+      <Compile Include="Convert.fs" />
+      <Compile Include="Blocks\Base.fs" />
+      <Compile Include="Blocks\Osc.fs" />
+      <Compile Include="Blocks\Filter.fs" />
+    </ItemGroup>
+
+</Project>

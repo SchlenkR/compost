@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="5a3292b6-63f6-4e67-8966-30d02c79ff63" name="Default Changelist" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/blocks.fsx" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/compost.fsx" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/test.fsx" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/compose.fsx" />
+        <option value="$PROJECT_DIR$/blocks.fsx" />
+        <option value="$PROJECT_DIR$/2_blocks.fsx" />
+        <option value="$PROJECT_DIR$/test.fsx" />
+        <option value="$PROJECT_DIR$/compost.fsx" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectId" id="1VFYu5QCyT1f7k75VQWIMSCj8WK" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="settings.editor.selected.configurable" value="reference.settingsdialog.IDE.editor.colors.Console Font" />
+  </component>
+  <component name="ServiceViewManager">
+    <option name="viewStates">
+      <list>
+        <serviceView>
+          <treeState>
+            <expand />
+            <select />
+          </treeState>
+        </serviceView>
+      </list>
+    </option>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="5a3292b6-63f6-4e67-8966-30d02c79ff63" name="Default Changelist" comment="" />
+      <created>1576850539064</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1576850539064</updated>
+      <workItem from="1576850554274" duration="1260000" />
+      <workItem from="1576851898401" duration="2126000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="UnityProjectConfiguration" hasMinimizedUI="false" />
+  <component name="UnityUnitTestConfiguration" currentTestLauncher="NUnit" />
+  <component name="WindowStateProjectService">
+    <state x="245" y="152" key="SettingsEditor" timestamp="1576851624046">
+      <screen x="0" y="0" width="1563" height="1002" />
+    </state>
+    <state x="245" y="152" key="SettingsEditor/0.0.1563.1002@0.0.1563.1002" timestamp="1576851624046" />
+    <state x="444" y="216" width="672" height="678" key="search.everywhere.popup" timestamp="1576852200629">
+      <screen x="0" y="0" width="1563" height="1002" />
+    </state>
+    <state x="444" y="216" width="672" height="678" key="search.everywhere.popup/0.0.1563.1002@0.0.1563.1002" timestamp="1576852200629" />
+  </component>
+</project>
