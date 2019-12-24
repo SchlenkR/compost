@@ -46,7 +46,7 @@ let amSynth2 =
 
 
 
-let gatedSynth =
+let synthVoice =
     let envelope = Envelope.ar 0.005 0.0001 |> Envelope
     let synth = amSynth2 |> Synth
     buildVoice envelope synth |> Voice
@@ -68,13 +68,14 @@ let jingleBells = [
     Rel; Rel;  Rel; Rel;  Rel; Rel;  Rel; Rel
 ]
 
-sequencer gatedSynth 90.0 16.0 jingleBells 
+sequencer synthVoice 90.0 16.0 jingleBells 
 |> playSync 12.0<s>
 
 
 
 // TODO: Pattern should tell when it's "done" instead of specifying seconds to play
-// Crackle: There is a hard "release" in the envelope that has to be fixed
+// Naming, code quality ist nicht so geil
+
 
 
 //Eval.Test.evalN44k (Envelope.follow 1.0 1.0) 44100 |> List.iteri (fun i x -> printfn "%d - %f" i x)

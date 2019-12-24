@@ -83,6 +83,7 @@ module Core =
     /// apply operator        
     let (<*>) = apply
 
+    
     let inline private binOpBoth left right f =
         blockBase {
             let! l = left
@@ -123,6 +124,7 @@ module Core =
         static member inline (*) (left, right) = binOpRight left right (*)
         static member inline (/) (left, right) = binOpRight left right (/)
 
+    
     /// Reads the global state that is passed around to every loop function.
     let read() =
         Block(fun _ r ->
