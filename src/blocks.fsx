@@ -86,23 +86,41 @@ module Base =
 
 
 module Envelope =
+    
+    type FollowerMode =
+        | Releasing of int
+        | Following
 
     // An Envelope follower (tc: [0.0 .. 1.0])
-    let follow tc (input: float) resetTrigger =
+    let follow tc (input: float) release =
 
-        let seed = 0.0
+        let seedValue = 0.0
+        let seed = (seedValue, Following)
         
         // k depende on sample rate; but we ignore that for the moment and assume 44.1kHz
 //        let k = 0.005
 //        let tc' = -(1.0 - k) * tc + 1.0
 
         fun s _ ->
-            let s' = if resetTrigger then seed else s
-            let diff = s' - input
-            let out = s' - diff * tc
+            
+            let lastValue, lastMode = s
+            
+            let lastMode' = if release then Releasing 1000 else lastMode
+            
+            // when releasing, this prevents crackling
+            let target,newMode =
+                match lastMode' with
+                | Following -> input, Following
+                | Releasing remaining ->
+                    let x = remaining - 1
+                    (0.0, if x = 0 then Following else Releasing x)
 
+            let diff = lastValue - target
+            let out = lastValue - diff * tc
+            
             { value = out
-              state = out }
+              state = out,newMode }
+                    
         |> liftSeed seed
         |> Block
 

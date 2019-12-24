@@ -31,7 +31,6 @@ let amSynth =
             let! lp = Filter.lowPass v { q = 1.0; frq = 4000.0; gain = 1.0 }
             return lp
         }
-    |> Synth
 
 let amSynth2 =
     fun frq ->
@@ -42,16 +41,40 @@ let amSynth2 =
             let! lp = Filter.lowPass v { q = 1.0; frq = 4000.0; gain = 1.0 }
             return lp
         }
-    |> Synth
 
 //(let (Synth s) = amSynth in s 2000.0 |> playSync 2.5<s>)
 
-let gatedSynth = (makePlayable (Envelope.ar 0.001 0.0002 |> Envelope) amSynth2) |> Voice
 
-let final =
-//    sequencer gatedSynth 120.0 8.0 [ C4; D4; E4; Rel; Rel; A4; B4; C5 ]
-    sequencer gatedSynth 120.0 8.0 [ C4; C4; Rel; Rel; Rel; A5; Sus; Sus; Sus; A5 ]
-    |> playSync 5.0<s>
+
+let gatedSynth =
+    let envelope = Envelope.ar 0.005 0.0001 |> Envelope
+    let synth = amSynth2 |> Synth
+    buildVoice envelope synth |> Voice
+
+let jingleBells = [
+    
+    e5; Sus;   e5; Sus;   e5; Sus;   Rel; Rel
+    e5; Sus;   e5; Sus;   e5; Sus;   Rel; Rel
+    
+    e5; Sus;   g5; Sus;   c5; Sus;   Rel; d5
+    e5; Sus;   Sus; Sus;  Sus; Sus;  Rel; Rel
+    
+    f5; Sus;   f5; Sus;   f5; Sus;   Rel; f5
+    f5; Rel;   e5; Rel;   e5; Rel;   e5; e5
+    
+    g5; Rel;   g5; Rel;   f5; Sus;   d5; Sus
+    c5; Sus;   Sus; Sus;  Sus; Sus;  Rel; Rel
+    
+    Rel; Rel;  Rel; Rel;  Rel; Rel;  Rel; Rel
+]
+
+sequencer gatedSynth 90.0 16.0 jingleBells 
+|> playSync 12.0<s>
+
+
+
+// TODO: Pattern should tell when it's "done" instead of specifying seconds to play
+// Crackle: There is a hard "release" in the envelope that has to be fixed
 
 
 //Eval.Test.evalN44k (Envelope.follow 1.0 1.0) 44100 |> List.iteri (fun i x -> printfn "%d - %f" i x)
