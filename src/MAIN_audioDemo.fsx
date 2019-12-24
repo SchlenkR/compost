@@ -75,4 +75,4 @@ let jingleBells = [
 
 // 7 - play the synth at 90 BPM. The pattern describes 16th notes
 sequencer synthVoice 90.0 16.0 jingleBells 
-|> playSync 12.5<s>
+|> playSync 12.0<s>
