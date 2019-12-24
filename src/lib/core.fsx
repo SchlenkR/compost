@@ -252,7 +252,6 @@ module Audio =
                 toAudioSeq44k block |> listN
 
 
-[<AutoOpen>]
 module Compose =
 
     type Trigger =
@@ -312,7 +311,7 @@ module Compose =
                          feedback = newQuantIndex, newFrq }
             }
 
-    [<AutoOpen>]
+
     module Notes =
 
         let c0 = Hold 16.351597831287414

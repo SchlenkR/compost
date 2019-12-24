@@ -1,16 +1,16 @@
-﻿﻿#load "../lib/playback.fsx"
+﻿
+#load "./lib/playback.fsx"
 
 open Core
 open Blocks
 open Playback
+open Compose
+open Notes
 
 open Microsoft.FSharp.Data.UnitSystems.SI.UnitSymbols
 
-//
-//block {
-//    let! x = Osc.sin 2000.0
-//    return x * 0.5 } |> playSync 2.5<s>
 
+// 2 - a frequency modulated synth
 let fmSynth =
     fun frq ->
         block {
@@ -19,8 +19,8 @@ let fmSynth =
             let! s = Osc.sin (frq * (1.0 - modulator * amount))
             return s * 0.5
         }
-    |> Synth
 
+// 3 - an amplitude modulated synth (alternative 1)
 let amSynth =
     fun frq ->
         block {
@@ -32,6 +32,7 @@ let amSynth =
             return lp
         }
 
+// 4 - an amplitude modulated synth (alternative 2)
 let amSynth2 =
     fun frq ->
         block {
@@ -42,15 +43,19 @@ let amSynth2 =
             return lp
         }
 
-//(let (Synth s) = amSynth in s 2000.0 |> playSync 2.5<s>)
+
+// play the am synth for 2.5 seconds
+////amSynth2 2000.0 |> playSync 2.5<s>
 
 
-
+// 5 - create somthing "triggerable" by combining the am synth
+//     and an attack-release envelope
 let synthVoice =
     let envelope = Envelope.ar 0.005 0.0001 |> Envelope
     let synth = amSynth2 |> Synth
     buildVoice envelope synth |> Voice
 
+// 6 - define a melody (no chords; just monophone notes)
 let jingleBells = [
     
     e5; Sus;   e5; Sus;   e5; Sus;   Rel; Rel
@@ -68,14 +73,6 @@ let jingleBells = [
     Rel; Rel;  Rel; Rel;  Rel; Rel;  Rel; Rel
 ]
 
+// 7 - play the synth at 90 BPM. The pattern describes 16th notes
 sequencer synthVoice 90.0 16.0 jingleBells 
-|> playSync 12.0<s>
-
-
-
-// TODO: Pattern should tell when it's "done" instead of specifying seconds to play
-// Naming, code quality ist nicht so geil
-
-
-
-//Eval.Test.evalN44k (Envelope.follow 1.0 1.0) 44100 |> List.iteri (fun i x -> printfn "%d - %f" i x)
+|> playSync 12.5<s>
