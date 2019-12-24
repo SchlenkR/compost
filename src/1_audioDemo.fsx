@@ -1,4 +1,4 @@
-﻿#load "../playback.fsx"
+﻿﻿#load "../lib/playback.fsx"
 
 open Core
 open Blocks

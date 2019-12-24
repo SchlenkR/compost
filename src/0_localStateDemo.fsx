@@ -1,5 +1,5 @@
 ﻿
-#load "../core.fsx"
+#load "lib/core.fsx"
 open Core
 
 // a simple block that toggles ongoing from true to false with each evaluation
@@ -11,4 +11,4 @@ let invert =
     |> Block
 
 // val it : bool list = [true; false; true; false; true; false; true; false; true; false]
-Compost.Eval.Test.evalN invert 10
+Core.Eval.Test.evalN invert 10

@@ -1,4 +1,5 @@
-﻿#load "core.fsx"
+﻿
+#load "core.fsx"
 open Core
 
 open System

@@ -1,6 +1,5 @@
 ﻿open System
 
-
 [<AutoOpen>]
 module Core =
 

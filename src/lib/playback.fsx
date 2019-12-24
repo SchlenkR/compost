@@ -2,7 +2,7 @@
 #load "blocks.fsx"
 open Core
 
-#r "../packages/CSCore/lib/net35-client/cscore.dll"
+#r "../../packages/CSCore/lib/net35-client/cscore.dll"
 
 open Microsoft.FSharp.Data.UnitSystems.SI.UnitSymbols
 open System.Threading
