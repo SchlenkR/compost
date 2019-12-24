@@ -88,6 +88,7 @@ module Base =
 
 module Envelope =
     
+    // we need the "releasing" phase to prevent hearable cracks
     type FollowerMode =
         | Releasing of int
         | Following
@@ -98,17 +99,10 @@ module Envelope =
         let seedValue = 0.0
         let seed = (seedValue, Following)
         
-        // k depende on sample rate; but we ignore that for the moment and assume 44.1kHz
-//        let k = 0.005
-//        let tc' = -(1.0 - k) * tc + 1.0
-
         fun s _ ->
-            
             let lastValue, lastMode = s
-            
             let lastMode' = if release then Releasing 1000 else lastMode
             
-            // when releasing, this prevents crackling
             let target,newMode =
                 match lastMode' with
                 | Following -> input, Following

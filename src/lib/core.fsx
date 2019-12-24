@@ -254,23 +254,22 @@ module Audio =
 
 module Compose =
 
-    type Trigger =
-        | Hold of float
-        | Sus
-        | Rel
-
     type Synth<'s> = Synth of (float -> Block<float, 's, Env>)
 
     type Envelope<'s> = Envelope of (bool -> bool -> Block<float, 's, Env>)
 
     type Voice<'s> = Voice of (float option -> bool -> Block<float, 's, Env>)
 
-    let inline buildVoice (Envelope envelope) (Synth synth) trigger resetTrigger =
+    let inline buildInstrument (Envelope envelope) (Synth synth) note resetTrigger =
         let initialFrq = 0.0
+        
+        // ( +-> ) This is a "feedback with no reader state". 
+        //         Why? -> We are able to feed back state not only
+        //         inside a block, but over a whole block composition.
         initialFrq +-> fun lastFrq ->
             block {
                 let frq, isTriggered =
-                    match trigger with
+                    match note with
                     | None -> lastFrq, false
                     | Some frq -> frq, true
                 let! s = synth frq
@@ -278,6 +277,11 @@ module Compose =
                 return { out = s * e
                          feedback = frq }
             }
+
+    type Trigger =
+        | Hold of float // key (frequency) is triggered (can also mean retriggered)
+        | Sus           // "Please hold the current key"
+        | Rel           // No key is pressed - come to silence.
 
     let sequencer (Voice voice) (bpm: float) beats (pattern: Trigger list) =
 
@@ -290,6 +294,8 @@ module Compose =
         let patternQuant = beats / 4.0
         let initials = (-1, 1000.0)
 
+        // ( ++> ) Look at the comment in 'buildInstrument': This is the
+        //         variant with reader state.
         initials ++> fun s (r: Env) ->
             block {
                 let lastQuantIndex, lastFrq = s

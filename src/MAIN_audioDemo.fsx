@@ -11,37 +11,34 @@ open Microsoft.FSharp.Data.UnitSystems.SI.UnitSymbols
 
 
 // 2 - a frequency modulated synth
-let fmSynth =
-    fun frq ->
-        block {
-            let amount = 0.05
-            let! modulator = Osc.sin 3500.0
-            let! s = Osc.sin (frq * (1.0 - modulator * amount))
-            return s * 0.5
-        }
+let fmSynth frq =
+    block {
+        let amount = 0.05
+        let! modulator = Osc.sin 3500.0
+        let! s = Osc.sin (frq * (1.0 - modulator * amount))
+        return s * 0.5
+    }
 
 // 3 - an amplitude modulated synth (alternative 1)
-let amSynth =
-    fun frq ->
-        block {
-            let amount = 0.5
-            let! modulator = Osc.sin (frq * 1.5)
-            let! s = Osc.sin frq
-            let v = s * 0.5 * ((1.0 - modulator * amount))
-            let! lp = Filter.lowPass v { q = 1.0; frq = 4000.0; gain = 1.0 }
-            return lp
-        }
+let amSynth frq =
+    block {
+        let amount = 0.5
+        let! modulator = Osc.sin (frq * 1.5)
+        let! s = Osc.sin frq
+        let v = s * 0.5 * ((1.0 - modulator * amount))
+        let! lp = Filter.lowPass v { q = 1.0; frq = 4000.0; gain = 1.0 }
+        return lp
+    }
 
 // 4 - an amplitude modulated synth (alternative 2)
-let amSynth2 =
-    fun frq ->
-        block {
-            let amount = 0.5
-            let! modulator = 1.0 - (Osc.sin (frq * 1.5)) * amount
-            let! v = (Osc.sin frq) * 0.5 * modulator
-            let! lp = Filter.lowPass v { q = 1.0; frq = 4000.0; gain = 1.0 }
-            return lp
-        }
+let amSynth2 frq =
+    block {
+        let amount = 0.5
+        let! modulator = 1.0 - (Osc.sin (frq * 1.5)) * amount
+        let! v = (Osc.sin frq) * 0.5 * modulator
+        let! lp = Filter.lowPass v { q = 1.0; frq = 4000.0; gain = 1.0 }
+        return lp
+    }
 
 
 // play the am synth for 2.5 seconds
@@ -53,7 +50,7 @@ let amSynth2 =
 let synthVoice =
     let envelope = Envelope.ar 0.005 0.0001 |> Envelope
     let synth = amSynth2 |> Synth
-    buildVoice envelope synth |> Voice
+    buildInstrument envelope synth |> Voice
 
 // 6 - define a melody (no chords; just monophone notes)
 let jingleBells = [
@@ -62,13 +59,13 @@ let jingleBells = [
     e5; Sus;   e5; Sus;   e5; Sus;   Rel; Rel
     
     e5; Sus;   g5; Sus;   c5; Sus;   Rel; d5
-    e5; Sus;   Sus; Sus;  Sus; Sus;  Rel; Rel
+    e5; Sus;   Sus; Sus;  Rel; Rel;  Rel; Rel
     
     f5; Sus;   f5; Sus;   f5; Sus;   Rel; f5
     f5; Rel;   e5; Rel;   e5; Rel;   e5; e5
     
     g5; Rel;   g5; Rel;   f5; Sus;   d5; Sus
-    c5; Sus;   Sus; Sus;  Sus; Sus;  Rel; Rel
+    c5; Sus;   Sus; Sus;  Sus; Rel;  Rel; Rel
     
     Rel; Rel;  Rel; Rel;  Rel; Rel;  Rel; Rel
 ]
