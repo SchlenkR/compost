@@ -1,5 +1,6 @@
 ﻿open System
 
+
 [<AutoOpen>]
 module Core =
 
@@ -59,6 +60,20 @@ module Core =
         member __.ReturnFrom l = returnFromB l
 
     let blockGen<'a> = BlockBuilderGen<'a>()
+
+    let kleisli (f: 'a -> Block<'b, _, _>) (g: 'b -> Block<'c, _, _>) : 'a -> Block<'c, _, _> =
+        fun x -> blockBase {
+            let! f' = f x
+            return! g f'
+        }
+    let (>=>) = kleisli
+
+    let kleisliPipe (f: Block<'a, _, _>) (g: 'a -> Block<'b, _, _>) : Block<'b, _, _> =
+        blockBase {
+            let! f' = f
+            return! g f'
+        }
+    let (|=>) = kleisliPipe
 
     let mapB b f =
         let f' s r =
@@ -260,23 +275,25 @@ module Compose =
 
     type Voice<'s> = Voice of (float option -> bool -> Block<float, 's, Env>)
 
-    let inline buildInstrument (Envelope envelope) (Synth synth) note resetTrigger =
-        let initialFrq = 0.0
-        
-        // ( +-> ) This is a "feedback with no reader state". 
-        //         Why? -> We are able to feed back state not only
-        //         inside a block, but over a whole block composition.
-        initialFrq +-> fun lastFrq ->
-            block {
-                let frq, isTriggered =
-                    match note with
-                    | None -> lastFrq, false
-                    | Some frq -> frq, true
-                let! s = synth frq
-                let! e = envelope isTriggered resetTrigger
-                return { out = s * e
-                         feedback = frq }
-            }
+    let inline buildVoice (Envelope envelope) (Synth synth) =
+        fun note resetTrigger ->
+            let initialFrq = 0.0
+            
+            // ( +-> ) This is a "feedback with no reader state". 
+            //         Why? -> We are able to feed back state not only
+            //         inside a block, but over a whole block composition.
+            initialFrq +-> fun lastFrq ->
+                block {
+                    let frq, isTriggered =
+                        match note with
+                        | None -> lastFrq, false
+                        | Some frq -> frq, true
+                    let! s = synth frq
+                    let! e = envelope isTriggered resetTrigger
+                    return { out = s * e
+                             feedback = frq }
+                }
+        |> Voice
 
     type Trigger =
         | Hold of float // key (frequency) is triggered (can also mean retriggered)

@@ -25,8 +25,8 @@ let amSynth frq =
         let amount = 0.5
         let! modulator = Osc.sin (frq * 1.5)
         let! s = Osc.sin frq
-        let v = s * 0.5 * ((1.0 - modulator * amount))
-        let! lp = Filter.lowPass v { q = 1.0; frq = 4000.0; gain = 1.0 }
+        let v = s * 0.5 * (1.0 - modulator * amount)
+        let! lp = Filter.lowPass { q = 1.0; frq = 4000.0; gain = 1.0 } v
         return lp
     }
 
@@ -34,10 +34,10 @@ let amSynth frq =
 let amSynth2 frq =
     block {
         let amount = 0.5
-        let! modulator = 1.0 - (Osc.sin (frq * 1.5)) * amount
-        let! v = (Osc.sin frq) * 0.5 * modulator
-        let! lp = Filter.lowPass v { q = 1.0; frq = 4000.0; gain = 1.0 }
-        return lp
+        let! modulator = 1.0 - Osc.sin (frq * 1.5) * amount
+        return!
+            Osc.sin frq * 0.5 * modulator
+            |=> Filter.lowPass { q = 1.0; frq = 4000.0; gain = 1.0 }
     }
 
 
@@ -50,7 +50,7 @@ let amSynth2 frq =
 let synthVoice =
     let envelope = Envelope.ar 0.005 0.0001 |> Envelope
     let synth = amSynth2 |> Synth
-    buildInstrument envelope synth |> Voice
+    buildVoice envelope synth
 
 // 6 - define a melody (no chords; just monophone notes)
 let jingleBells = [
