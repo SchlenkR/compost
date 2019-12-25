@@ -22,19 +22,19 @@ let fmSynth frq =
 // 3 - an amplitude modulated synth (alternative 1)
 let amSynth frq =
     block {
-        let amount = 0.5
+        let modAmount = 0.5
         let! modulator = Osc.sin (frq * 1.5)
         let! s = Osc.sin frq
-        let v = s * 0.5 * (1.0 - modulator * amount)
+        let v = s * 0.5 * (1.0 - modulator * modAmount)
         let! lp = Filter.lowPass { q = 1.0; frq = 4000.0; gain = 1.0 } v
         return lp
     }
 
-// 4 - an amplitude modulated synth (alternative 2)
+// 4 - same amplitude modulated synth (alternative 2)
 let amSynth2 frq =
     block {
-        let amount = 0.5
-        let! modulator = 1.0 - Osc.sin (frq * 1.5) * amount
+        let modAmount = 0.5
+        let! modulator = 1.0 - Osc.sin (frq * 1.5) * modAmount
         return!
             Osc.sin frq * 0.5 * modulator
             |=> Filter.lowPass { q = 1.0; frq = 4000.0; gain = 1.0 }
