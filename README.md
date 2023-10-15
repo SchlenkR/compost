@@ -1,6 +1,8 @@
 # DISCONTINUED
 
-**For a real-world implementation, please have a look at [Vide](https://github.com/vide-collabo/Vide).**
+**FluX is discontinued. Before starting to work with this library or thinking about forking it, please have a look at [Vide](https://github.com/vide-collabo/Vide), which is a successor of FluX.**
+
+--------------------------
 
 # compost
 
