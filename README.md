@@ -1,4 +1,9 @@
+# DISCONTINUED
+
+**For a real-world implementation, please have a look at [Vide](https://github.com/vide-collabo/Vide).**
+
 # compost
+
 Compost is an F# interactive scripting library for sound generation and composition. It is part of my FsAdvent 2019 contribution. The blog post is located here (TODO).
 
 ## Setup
